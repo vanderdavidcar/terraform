@@ -19,7 +19,7 @@ provider "openstack" {
 
 }
 
-# Definir na variavel "count" a quantidade de instancias
+# Define in variable "count" quantity of instances you need
 resource "openstack_compute_instance_v2" "instance_1" {
   count           = 4
   name            = "node-0${count.index}"
