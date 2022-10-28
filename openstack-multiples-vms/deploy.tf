@@ -19,6 +19,7 @@ provider "openstack" {
 
 }
 
+# Definir na variavel "count" a quantidade de instancias
 resource "openstack_compute_instance_v2" "instance_1" {
   count           = 4
   name            = "node-0${count.index}"
@@ -34,7 +35,6 @@ network {
   #user_data = file("bootstrap.sh")
 }
 
-#Attach FIP instances
 resource "openstack_networking_floatingip_v2" "fip_1" {
   pool = "public-net"
 }
