@@ -7,34 +7,37 @@ terraform {
   }
 }
 
-# Configure the provider with your Openstack-Edge credentials
-provider "openstack" {
-  #cloud = "opentack"
-  auth_url      = "https://identity.spo1.edge.embratel.cloud:5000/v3"
-  user_name     = "username"
-  token         = "token"
-  tenant_name   = "tenant"
-  domain_name   = "domain"
-  region        =  "spo1"
-
-}
-
-# Define in variable "count" quantity of instances you need
 resource "openstack_compute_instance_v2" "instance_1" {
-  count           = 4
-  name            = "node-0${count.index}"
-  security_groups = ["mercurio"]
-  region          = "spo1"
-  image_name      = "CentOS-7"
-  flavor_name     = "1x small"
-  key_pair        = "mercurio"
+  provider = openstack.ovh
+  count           = "${var.num}"
+  name            = "node0${count.index+1}"
+  security_groups = ["${var.security_group}"]
+  region          = "${var.region}"
+  image_name      = "${var.image}"
+  flavor_name     = "${var.flavor}"
+  key_pair        = "${var.ssh_key_pair}"
 
 network {
-    name = "0000001-network"
+    name = "${var.network}"
   }
-  #user_data = file("bootstrap.sh")
+  
+  user_data = "${file("motd.sh")}"
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
-  pool = "public-net"
+# Option if needed in every instances
+resource "openstack_compute_floatingip_v2" "floatIP" {
+  provider = openstack.ovh
+  count = "${var.num}"
+  pool = "${var.pool}"
+}
+
+resource "openstack_compute_floatingip_associate_v2" "floatIP" {
+  provider = openstack.ovh
+  count = "${var.num}"
+  floating_ip = "${element(openstack_compute_floatingip_v2.floatIP.*.address, count.index)}"
+  instance_id = "${element(openstack_compute_instance_v2.instance_1.*.id, count.index)}"
+}
+
+output "floatingAddress" {
+  value = "${openstack_compute_floatingip_associate_v2.floatIP.*.floating_ip}"
 }
