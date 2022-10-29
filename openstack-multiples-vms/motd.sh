@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "Instances created via terraform" > /etc/modt
+echo "Instances created via terraform" > /etc/mott
