@@ -1,3 +1,3 @@
 # terraform
 
-Scripts in terraform to set up instances in openstack
+Scripts in terraform to set up instances in openstack using variables.
